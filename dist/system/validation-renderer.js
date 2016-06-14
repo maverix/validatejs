@@ -19,17 +19,34 @@ System.register(['aurelia-pal'], function (_export, _context) {
           _classCallCheck(this, ValidationRenderer);
         }
 
+        function getParent(node) {
+            if (node == undefined || node == null || node.parentElement == undefined || node.parentElement == null)
+              return null;
+            
+            if (node.parentElement.classList.contains('form-group'))
+              return nodel.parentElement;
+
+            var parent = $(node).parents('.form-group');
+            
+            if (parent.length > 0)
+              return parent[0];
+          
+            return node.parentElement;
+        }
+
         ValidationRenderer.prototype.renderErrors = function renderErrors(node, relevantErrors) {
           this.unrenderErrors(node);
           if (relevantErrors.length) {
-            node.parentElement.classList.add('has-error');
+            var parent = getParent(node);
+
+            parent.classList.add('has-error');
             relevantErrors.forEach(function (error) {
-              if (node.parentElement.textContent.indexOf(error.message) === -1) {
+              if (parent.textContent.indexOf(error.message) === -1) {
                 var errorMessageHelper = DOM.createElement('span');
                 var errorMessageNode = DOM.createTextNode(error.message);
                 errorMessageHelper.appendChild(errorMessageNode);
                 errorMessageHelper.classList.add('help-block', 'au-validation');
-                node.parentElement.appendChild(errorMessageHelper);
+                parent.appendChild(errorMessageHelper);
               }
             });
           }
@@ -37,8 +54,10 @@ System.register(['aurelia-pal'], function (_export, _context) {
 
         ValidationRenderer.prototype.unrenderErrors = function unrenderErrors(node) {
           var deleteThese = [];
-          node.parentElement.classList.remove('has-error');
-          var children = node.parentElement.children;
+
+          var parent = getParent(node);
+          parent.classList.remove('has-error');
+          var children = parent.children;
           for (var i = 0; i < children.length; i++) {
             var child = children[i];
             if (child.classList.contains('help-block') && child.classList.contains('au-validation')) {
@@ -46,7 +65,7 @@ System.register(['aurelia-pal'], function (_export, _context) {
             }
           }
           deleteThese.forEach(function (child) {
-            node.parentElement.removeChild(child);
+            child.parentElement.removeChild(child);
           });
         };
 
